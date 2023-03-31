@@ -71,14 +71,14 @@ struct PacketStats
 int main(int argc, char* argv[])
 {
 	//IPv4 address of the interface we want to sniff
-	std::string interfaceIPAddr = "127.0.0.1";
+	//std::string interfaceIPAddr = "127.0.0.1";
 	
 	//find the instance class to use network interface
 	//PcapLiveDevice or WinPcapLiveDevice (according to the operating system the application is running on) 
-	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName("eth0");
 	if (dev == NULL)
 	{
-		std::cerr << "Cannot find interface with IPv4 address of <" << interfaceIPAddr << ">" << std::endl;
+		//std::cerr << "Cannot find interface with IPv4 address of <" << interfaceIPAddr << ">" << std::endl;
 		return 1;
 	}
 
@@ -88,10 +88,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	//pcpp::PortFilter portFilter(80, pcpp::SRC_OR_DST);
+	//pcpp::AndFilter andFilter;(&portFilter);
+
 	pcpp::RawPacketVector rawVector;
 	
 	dev->startCapture(rawVector);
-	pcpp::multiPlatformSleep(10);
+	pcpp::multiPlatformSleep(30);
 	dev->stopCapture();
 
 	std::cout << rawVector.size() << std::endl;
