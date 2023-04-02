@@ -33,6 +33,11 @@ std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
     return result;
 }
 
+void func(int& val)
+{
+	std::cout << val << std::endl;
+}
+
 /**
  * main method of the application
  */
