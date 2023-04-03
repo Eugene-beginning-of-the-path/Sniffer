@@ -5,6 +5,9 @@
 #include "SystemUtils.h" //several useful utilities for interaction with OS
 #include "packetStats.h" //mine class for statistics of protocols
 
+#include <EthLayer.h>
+#include <IPv4Layer.h>
+
 namespace pars
 {
     using timeout = unsigned long long;
@@ -21,12 +24,20 @@ namespace pars
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
         pars::vecStr packetsInfo;           // lines with full extracted data from each protocols
-
+        
         void briefInfoPackets();
+        std::string getInfoProtocol(pcpp::Layer* curLayer);
+
+        std::string reassemblyEth(pcpp::EthLayer* ethLayer);
+        std::string reassemblyIPv4(pcpp::IPv4Layer *ipLayer);
+        std::string IPv4optionTypeToString(pcpp::IPv4OptionTypes type);
 
     public:
         Parser(std::string interfaceName, timeout timeCapture);
 
         void startSniff();
     };
+
+    //std::string
+
 }
