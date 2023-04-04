@@ -7,6 +7,9 @@
 
 #include <EthLayer.h>
 #include <IPv4Layer.h>
+#include <IPv6Layer.h>
+#include <TcpLayer.h>
+#include <UdpLayer.h>
 
 namespace pars
 {
@@ -18,20 +21,25 @@ namespace pars
     class Parser
     {
     private:
-        pcpp::PcapLiveDevice *device;       // network interface
-        pcpp::RawPacketVector rawVec;       // RawPackets' vector
-        pars::timeout timeCapture;          // time to capture RawPackets
+        pcpp::PcapLiveDevice *device; // network interface
+        pcpp::RawPacketVector rawVec; // RawPackets' vector
+        pars::timeout timeCapture;    // time to capture RawPackets
 
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
-        pars::vvStr packetsInfo;           // lines with full extracted data from each protocols
-        
-        void briefInfoPackets();
-        std::string  getInfoProtocol(pcpp::Layer* curLayer);
+        pars::vvStr packetsInfo;            // lines with full extracted data from each protocols
 
-        std::string  reassemblyEth(pcpp::EthLayer* ethLayer);
-        std::string  reassemblyIPv4(pcpp::IPv4Layer *ipLayer);
-        std::string IPv4optionTypeToString(pcpp::IPv4OptionTypes type);
+        void briefInfoPackets();
+        std::string getInfoProtocol(pcpp::Layer *curLayer);
+
+        std::string reassemblyEth(pcpp::EthLayer *ethLayer);
+        std::string reassemblyIPv4(pcpp::IPv4Layer *ipLayer);
+        std::string IPv4OptionTypeToString(pcpp::IPv4OptionTypes type);
+        std::string reassemblyIPv6(pcpp::IPv6Layer *ipLayer);
+        std::string reassemblyTcp(pcpp::TcpLayer *tcpLayer);
+        std::string TcpOptionTypeToString(pcpp::TcpOptionType type);
+        std::string reassemblyUdp(pcpp::UdpLayer *udpLayer);
+
 
     public:
         Parser(std::string interfaceName, timeout timeCapture);
@@ -39,6 +47,6 @@ namespace pars
         void startSniff();
     };
 
-    //std::string
+    // std::string
 
 }
