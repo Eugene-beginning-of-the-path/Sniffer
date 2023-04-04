@@ -12,6 +12,7 @@ namespace pars
 {
     using timeout = unsigned long long;
     using vecStr = std::vector<std::string>;
+    using vvStr = std::vector<vecStr>;
     using PacketVector = std::vector<pcpp::Packet>;
 
     class Parser
@@ -23,13 +24,13 @@ namespace pars
 
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
-        pars::vecStr packetsInfo;           // lines with full extracted data from each protocols
+        pars::vvStr packetsInfo;           // lines with full extracted data from each protocols
         
         void briefInfoPackets();
-        std::string getInfoProtocol(pcpp::Layer* curLayer);
+        std::string  getInfoProtocol(pcpp::Layer* curLayer);
 
-        std::string reassemblyEth(pcpp::EthLayer* ethLayer);
-        std::string reassemblyIPv4(pcpp::IPv4Layer *ipLayer);
+        std::string  reassemblyEth(pcpp::EthLayer* ethLayer);
+        std::string  reassemblyIPv4(pcpp::IPv4Layer *ipLayer);
         std::string IPv4optionTypeToString(pcpp::IPv4OptionTypes type);
 
     public:

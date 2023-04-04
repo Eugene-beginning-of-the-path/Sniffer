@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     // << "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
     // << "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType) << std::endl;
 
-	pars::Parser parser("eth0", 15);
+	pars::Parser parser("eth0", 10);
 	parser.startSniff();
 
 	return 0;
