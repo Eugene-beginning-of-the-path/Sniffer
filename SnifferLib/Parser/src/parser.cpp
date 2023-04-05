@@ -103,6 +103,14 @@ std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
         return reassemblyDns(dynamic_cast<pcpp::DnsLayer *>(curLayer));
         break;
 
+    case (pcpp::HTTPRequest):
+        return reassemblyHttpRequest(dynamic_cast<pcpp::HttpRequestLayer *>(curLayer));
+        break;
+
+    case (pcpp::HTTPResponse):
+        return reassemblyHttpResponse(dynamic_cast<pcpp::HttpResponseLayer *>(curLayer));
+        break;
+
     default:
         return "\n\tUnknown protocol\n";
     }
@@ -433,11 +441,76 @@ std::string pars::Parser::DnsTypeToString(pcpp::DnsResourceType type)
     }
 }
 
-// std::string pars::Parser::DnsAnswerTypeToString(pcpp::DnsType type)
-// {
-//     switch (type)
-//     {
-//     case pcpp::DNS_TYPE_A:
-//         return "IPv4 address record";
-//     }
-// }
+std::string pars::Parser::reassemblyHttpRequest(pcpp::HttpRequestLayer *httpReqLayer)
+{
+    std::string info = "\n\tHTTP(request):\n";
+
+    if (httpReqLayer->getFirstLine() != nullptr)
+    {
+        info.append("\t\t>Size: " + std::to_string(httpReqLayer->getFirstLine()->getSize()) + '\n');
+        // info.append("\t\t>Is complete: " + std::to_string((int)(httpRequestLayer->getFirstLine()->isComplete())) + '\n');
+        info.append("\t\t>Method: " + printHttpMethod(httpReqLayer->getFirstLine()->getMethod()) + '\n');
+        info.append("\t\t>URI: " + httpReqLayer->getFirstLine()->getUri() + '\n');
+    }
+    if (httpReqLayer->getFieldByName(PCPP_HTTP_HOST_FIELD) != nullptr)
+    {
+        info.append("\t\t>Host: " + httpReqLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue() + '\n');
+    }
+    if (httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD) != nullptr)
+    {
+        info.append("\t\t>User-agent: " + httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue() + '\n');
+    }
+    if (httpReqLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD) != nullptr)
+    {
+        info.append("\t\t>Cookie: " + httpReqLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue() + '\n');
+    }
+
+    info.append("\t\t>HTTP full URL: " + httpReqLayer->getUrl() + '\n');
+
+    return info;
+}
+
+std::string pars::Parser::printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod)
+{
+    switch (httpMethod)
+    {
+    case pcpp::HttpRequestLayer::HttpGET:
+        return "GET";
+    case pcpp::HttpRequestLayer::HttpPOST:
+        return "POST";
+    default:
+        return "Other";
+    }
+}
+
+std::string pars::Parser::reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer)
+{
+    std::string info = "\n\tHTTP(response):\n";
+
+    if (httpResLayer->getFirstLine() != NULL)
+    {
+        info.append("\t\t>Size: " + std::to_string(httpResLayer->getFirstLine()->getSize()) + '\n');
+        info.append("\t\t>Status code: " + httpResLayer->getFirstLine()->getStatusCodeString() + '\n');
+        info.append("\t\t>Status code number: " + std::to_string(httpResLayer->getFirstLine()->getStatusCodeAsInt()) + '\n');
+        info.append("\t\t>HTTP version: " + std::to_string(httpResLayer->getFirstLine()->getVersion()) + '\n');
+    }
+
+    info.append("\t\t>Content size: " + std::to_string(httpResLayer->getContentLength()) + '\n');
+
+    return info;
+}
+
+std::string pars::Parser::printHttpVersion(pcpp::HttpVersion version)
+{
+    switch (version)
+    {
+    case pcpp::HttpVersion::ZeroDotNine:
+        return "Http/0.9";
+    case pcpp::HttpVersion::OneDotZero:
+        return "Http/1.0";
+    case pcpp::HttpVersion::OneDotOne:
+        return "Http/1.1";
+    default:
+        return "Unknown version";
+    }
+}

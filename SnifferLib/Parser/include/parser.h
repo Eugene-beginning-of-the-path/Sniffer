@@ -11,6 +11,7 @@
 #include <TcpLayer.h>
 #include <UdpLayer.h>
 #include <DnsLayer.h>
+#include <HttpLayer.h>
 
 namespace pars
 {
@@ -42,6 +43,11 @@ namespace pars
         std::string reassemblyUdp(pcpp::UdpLayer *udpLayer);
         std::string reassemblyDns(pcpp::DnsLayer *dnsLayer);
         std::string DnsTypeToString(pcpp::DnsResourceType type);
+        std::string reassemblyHttpRequest(pcpp::HttpRequestLayer *httpReqLayer);
+        std::string printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod);
+        std::string reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer);
+        std::string printHttpVersion(pcpp::HttpVersion version);
+
 
     public:
         Parser(std::string interfaceName, timeout timeCapture);
