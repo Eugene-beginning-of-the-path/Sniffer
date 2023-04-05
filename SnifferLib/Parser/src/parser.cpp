@@ -99,6 +99,10 @@ std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
         return reassemblyUdp(dynamic_cast<pcpp::UdpLayer *>(curLayer));
         break;
 
+    case (pcpp::DNS):
+        return reassemblyDns(dynamic_cast<pcpp::DnsLayer *>(curLayer));
+        break;
+
     default:
         return "\n\tUnknown protocol\n";
     }
@@ -344,3 +348,96 @@ std::string pars::Parser::reassemblyUdp(pcpp::UdpLayer *udpLayer)
 
     return info;
 }
+
+std::string pars::Parser::reassemblyDns(pcpp::DnsLayer *dnsLayer)
+{
+    std::string info = "\n\tDNS:\n";
+
+    info.append("\t\t>Size of the DNS data : " + std::to_string(dnsLayer->getHeaderLen()) + '\n');
+    info.append("\t\t>Payload size: " + std::to_string(dnsLayer->getLayerPayloadSize()) + '\n');
+    info.append("\t\t>Query count: " + std::to_string(dnsLayer->getQueryCount()) + '\n');
+    info.append("\t\t>Answer count: " + std::to_string(dnsLayer->getAnswerCount()) + '\n');
+    info.append("\t\t>Authority count: " + std::to_string(dnsLayer->getAuthorityCount()) + '\n');
+    info.append("\t\t>Additional record count: " + std::to_string(dnsLayer->getAdditionalRecordCount()) + '\n');
+
+    if (dnsLayer->getDnsHeader() != NULL)
+    {
+        info.append("\t\t>into Header:\n");
+        info.append("\t\t|\t-DNS Query ID: " + std::to_string(dnsLayer->getDnsHeader()->transactionID) + '\n');
+        info.append("\t\t|\t-Number DNS query records: " + std::to_string(dnsLayer->getDnsHeader()->numberOfQuestions) + '\n');
+        info.append("\t\t|\t-Number DNS answer records: " + std::to_string(dnsLayer->getDnsHeader()->numberOfAnswers) + '\n');
+        info.append("\t\t|\t-Number authority records: " + std::to_string(dnsLayer->getDnsHeader()->numberOfAuthority) + '\n');
+        info.append("\t\t|\t-Number additional records: " + std::to_string(dnsLayer->getDnsHeader()->numberOfAdditional) + '\n');
+    }
+    if (dnsLayer->getFirstQuery() != NULL)
+    {
+        info.append("\t\t>DNS query:\n");
+
+        auto query = dnsLayer->getFirstQuery();
+        for (auto i = 0; i < dnsLayer->getQueryCount(); i++)
+        {
+
+            info.append("\t\t|\t-Query size: " + std::to_string(query->getSize()) + '\n');
+            info.append("\t\t|\t-Query type: " + DnsTypeToString(query->getType()) + '\n');
+
+            if (i + 1 != dnsLayer->getQueryCount())
+                info.append("\t\t|\n");
+
+            query = dnsLayer->getNextQuery(query);
+        }
+    }
+    if (dnsLayer->getFirstAnswer() != NULL)
+    {
+        info.append("\t\t>DNS answer:\n");
+
+        auto answer = dnsLayer->getFirstAnswer();
+        for (auto i = 0; i < dnsLayer->getAnswerCount(); i++)
+        {
+            info.append("\t\t|\t-The time-to-leave value (this record): " + std::to_string(answer->getTTL()) + '\n');
+            info.append("\t\t|\t-Data length value (this record): " + std::to_string(answer->getDataLength()) + '\n');
+            info.append("\t\t|\t-Total size in bytes (this record): " + std::to_string(answer->getSize()) + '\n');
+            info.append("\t\t|\t-Query type: " + DnsTypeToString(answer->getType()) + '\n');
+
+            if (i + 1 != dnsLayer->getAnswerCount())
+                info.append("\t\t|\n");
+
+            answer = dnsLayer->getNextAnswer(answer);
+        }
+    }
+
+    return info;
+}
+
+std::string pars::Parser::DnsTypeToString(pcpp::DnsResourceType type)
+{
+    switch (type)
+    {
+    case pcpp::DnsQueryType:
+        return "DNS query record";
+        break;
+
+    case pcpp::DnsAnswerType:
+        return "DNS answer record";
+        break;
+
+    case pcpp::DnsAuthorityType:
+        return "DNS authority record";
+        break;
+
+    case pcpp::DnsAdditionalType:
+        return "DNS additional record";
+        break;
+
+    default:
+        return "Error Query Type";
+    }
+}
+
+// std::string pars::Parser::DnsAnswerTypeToString(pcpp::DnsType type)
+// {
+//     switch (type)
+//     {
+//     case pcpp::DNS_TYPE_A:
+//         return "IPv4 address record";
+//     }
+// }

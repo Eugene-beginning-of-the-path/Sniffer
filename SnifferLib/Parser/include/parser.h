@@ -10,6 +10,7 @@
 #include <IPv6Layer.h>
 #include <TcpLayer.h>
 #include <UdpLayer.h>
+#include <DnsLayer.h>
 
 namespace pars
 {
@@ -39,7 +40,8 @@ namespace pars
         std::string reassemblyTcp(pcpp::TcpLayer *tcpLayer);
         std::string TcpOptionTypeToString(pcpp::TcpOptionType type);
         std::string reassemblyUdp(pcpp::UdpLayer *udpLayer);
-
+        std::string reassemblyDns(pcpp::DnsLayer *dnsLayer);
+        std::string DnsTypeToString(pcpp::DnsResourceType type);
 
     public:
         Parser(std::string interfaceName, timeout timeCapture);
