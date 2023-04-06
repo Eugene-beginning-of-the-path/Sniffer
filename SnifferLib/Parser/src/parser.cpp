@@ -62,6 +62,20 @@ void pars::Parser::startSniff()
     for (auto vectors : packetsInfo)
         for (auto strings : vectors)
             std::cout << strings;
+
+    std::cout << std::endl;
+
+    // for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
+    // iterMap++)
+    // {
+    //     std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
+    // }
+        
+
+    for (auto iter : countUrl)
+    {
+        std::cout << "\t URL:'" << iter.first << "' = " << iter.second << std::endl;
+    }
 }
 
 void pars::Parser::briefInfoPackets()
@@ -466,6 +480,11 @@ std::string pars::Parser::reassemblyHttpRequest(pcpp::HttpRequestLayer *httpReqL
     }
 
     info.append("\t\t>HTTP full URL: " + httpReqLayer->getUrl() + '\n');
+
+    if (countUrl.find(httpReqLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue()) != countUrl.end())
+        countUrl.find(httpReqLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue())->second += 1;
+    else
+        countUrl[httpReqLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue()] = 1;
 
     return info;
 }

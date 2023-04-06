@@ -1,5 +1,6 @@
 // #pragma once
 #include <iostream>
+#include <map>
 #include "PcapLiveDeviceList.h" //representing network interface (PcapLiveDevice for Linux)
 #include "stdlib.h"
 #include "SystemUtils.h" //several useful utilities for interaction with OS
@@ -30,6 +31,8 @@ namespace pars
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
         pars::vvStr packetsInfo;            // lines with full extracted data from each protocols
+
+        std::map<std::string, int> countUrl;
 
         void briefInfoPackets();
         std::string getInfoProtocol(pcpp::Layer *curLayer);
