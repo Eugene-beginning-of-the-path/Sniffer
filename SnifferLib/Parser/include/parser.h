@@ -33,6 +33,7 @@ namespace pars
         pars::vvStr packetsInfo;            // lines with full extracted data from each protocols
 
         std::map<std::string, int> countUrl;
+        std::string workMode;
 
         void briefInfoPackets();
         std::string getInfoProtocol(pcpp::Layer *curLayer);
@@ -51,9 +52,12 @@ namespace pars
         std::string reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer);
         std::string printHttpVersion(pcpp::HttpVersion version);
 
+        void briefInfo();
+        void fullInfo();
+        void specialTaskInfo();
 
     public:
-        Parser(std::string interfaceName, timeout timeCapture);
+        Parser(std::string interfaceName, timeout timeCapture, std::string workMode);
 
         void startSniff();
     };

@@ -1,7 +1,6 @@
 #include "parser.h"
 
-pars::Parser::Parser(std::string interfaceName, timeout timeCapture) : device(NULL),
-                                                                       timeCapture(timeCapture)
+pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), timeCapture(timeCapture), workMode(workMode)
 {
     device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceName);
 
@@ -16,6 +15,7 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture) : device(NU
         std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
         // throw exception!!-------------------//
     }
+
     parsedPacketVec.clear();
 }
 
@@ -25,57 +25,13 @@ void pars::Parser::startSniff()
     pcpp::multiPlatformSleep(timeCapture);
     device->stopCapture();
 
-    // brief information via PacketsStats:
-    // briefInfoPackets();
+    if (workMode == "brief")
+        briefInfo(); // brief information via PacketsStats
+    else if (workMode == "full")
+        fullInfo();                // full information via parsing all protocols
+    else if (workMode == "protei") // special task for Protey (counting all URL from HTTP)
+        specialTaskInfo();
 
-    // or full information via parsing xLayer:
-    int number = 1;
-    for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
-    {
-        parsedPacketVec.push_back(pcpp::Packet(*iter));
-
-        stats.consumePacket(parsedPacketVec.back());
-
-        std::string lineStart = "\n\n Packet #";
-        lineStart.append(std::to_string(number));
-        lineStart.append(":");
-        packetsInfo.push_back(pars::vecStr{""});
-        packetsInfo[number - 1].push_back(lineStart);
-
-        // std::cout << reassemblyEth(parsedPacketVec.back().getLayerOfType<pcpp::EthLayer>()) << std::endl;
-
-        for (auto i = parsedPacketVec.back().getFirstLayer(); i != NULL; i = i->getNextLayer())
-        {
-            packetsInfo[number - 1].push_back(getInfoProtocol(i));
-        }
-
-        number++;
-    }
-    stats.printToConsole();
-
-    std::cout << std::endl;
-    // for (auto i = packetsInfo.begin(); i != packetsInfo.end(); i++)
-    //     for (auto j = *i.begin(); j != j.end(); j++)
-    //     {
-    //         std::cout << *j;
-    //     }
-    for (auto vectors : packetsInfo)
-        for (auto strings : vectors)
-            std::cout << strings;
-
-    std::cout << std::endl;
-
-    // for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
-    // iterMap++)
-    // {
-    //     std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
-    // }
-        
-
-    for (auto iter : countUrl)
-    {
-        std::cout << "\t URL:'" << iter.first << "' = " << iter.second << std::endl;
-    }
 }
 
 void pars::Parser::briefInfoPackets()
@@ -532,4 +488,63 @@ std::string pars::Parser::printHttpVersion(pcpp::HttpVersion version)
     default:
         return "Unknown version";
     }
+}
+
+void pars::Parser::specialTaskInfo()
+{
+    fullInfo();
+
+    std::cout << std::endl
+              << "-----------------------------------------------------\n\n";
+    std::cout << "Protei task:\n";
+
+    for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
+         iterMap++)
+    {
+        std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
+    }
+
+    std::cout << std::endl;
+}
+
+void pars::Parser::fullInfo()
+{
+    int number = 1;
+    for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
+    {
+        parsedPacketVec.push_back(pcpp::Packet(*iter));
+
+        stats.consumePacket(parsedPacketVec.back());
+
+        std::string lineStart = "\n\n Packet #";
+        lineStart.append(std::to_string(number));
+        lineStart.append(":");
+        packetsInfo.push_back(pars::vecStr{""});
+        packetsInfo[number - 1].push_back(lineStart);
+
+        for (auto i = parsedPacketVec.back().getFirstLayer(); i != NULL; i = i->getNextLayer())
+        {
+            packetsInfo[number - 1].push_back(getInfoProtocol(i));
+        }
+
+        number++;
+    }
+    stats.printToConsole();
+
+    std::cout << std::endl;
+
+    for (auto vectors : packetsInfo)
+        for (auto strings : vectors)
+            std::cout << strings;
+}
+
+void pars::Parser::briefInfo()
+{
+    for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
+    {
+        pcpp::Packet parsedPacket(*iter);
+        stats.consumePacket(parsedPacket);
+    }
+
+    stats.printToConsole();
 }
