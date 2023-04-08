@@ -1,7 +1,7 @@
-//#include <iostream>
-//#include "stdlib.h"
-//#include "PcapLiveDeviceList.h"
-//#include "SystemUtils.h"
+// #include <iostream>
+// #include "stdlib.h"
+// #include "PcapLiveDeviceList.h"
+// #include "SystemUtils.h"
 
 #include "parser.h"
 #include "convertParam.h"
@@ -19,16 +19,17 @@
 /**
  * main method of the application
  */
-int main(int argc, char* argv[])
-{
-	try{
-			pars::Parser parser(conv::ParametrToStr(argv[2]),
-								conv::ParametrToInt(argv[1]), 
-								conv::ParametrToStr(argv[3]));
+int main(int argc, char *argv[])
+{    
+	try
+	{
+		pars::Parser parser(conv::ParametrToStr(argv[2]),
+							conv::ParametrToInt(argv[1]),
+							conv::ParametrToStr(argv[3]));
 
-			parser.startSniff();
+		parser.startSniff();
 	}
-	catch(std::runtime_error& ex)
+	catch (std::runtime_error &ex)
 	{
 		std::cerr << ex.what() << std::endl;
 	}

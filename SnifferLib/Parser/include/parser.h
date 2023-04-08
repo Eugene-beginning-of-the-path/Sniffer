@@ -15,6 +15,10 @@
 #include <DnsLayer.h>
 #include <HttpLayer.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/async.h" //support for async logging.
+#include "spdlog/sinks/basic_file_sink.h"
+
 namespace pars
 {
     using timeout = unsigned long long;
@@ -35,6 +39,7 @@ namespace pars
 
         std::map<std::string, int> countUrl;
         std::string workMode;
+        std::shared_ptr<spdlog::logger> logger;
 
         void briefInfoPackets();
         std::string getInfoProtocol(pcpp::Layer *curLayer);
@@ -53,6 +58,7 @@ namespace pars
         std::string reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer);
         std::string printHttpVersion(pcpp::HttpVersion version);
 
+        // Work mode:
         void briefInfo();
         void fullInfo();
         void specialTaskInfo();

@@ -2,17 +2,20 @@
 
 pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), timeCapture(timeCapture), workMode(workMode)
 {
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+
+
     device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceName);
 
     if (device == NULL)
     {
-        //std::cerr << "Cannot find interface with name <" << interfaceName << ">" << std::endl;
+        logger->info("Error >Cannot find interface with name <" + interfaceName + ">");
         throw std::runtime_error("Error >Cannot find interface with name <" + interfaceName + ">");
     }
 
     if (!device->open())
     {
-        //std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
+        // std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
         throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
     }
 

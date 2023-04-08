@@ -30,6 +30,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/Parser/include
 ${CMAKE_CURRENT_SOURCE_DIR}/Statistic/include
 )
 
+#includeing header of spdlob library (Logger)
+target_include_directories(SniffLib PUBLIC 
+${CMAKE_CURRENT_SOURCE_DIR}/Logger
+)
+
 #linking libraries of PcapPlusPlus (Packet++, Pcap++, Common++)
 target_link_libraries(SniffLib 
 ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPacket++.a
