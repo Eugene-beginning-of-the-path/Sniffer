@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.2)
+project(SniffLibProject VERSION 0.1.1)
+
 set(SOURCES 
 Parser/src/parser.cpp 
 Statistic/src/packetStats.cpp)
@@ -7,21 +10,30 @@ Parser/include/parser.h
 Statistic/include/packetStats.h)
 
 add_library(SniffLib STATIC ${SOURCES} ${HEADERS})
+set_target_properties(
+    SniffLib PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+)
 
-target_include_directories(SniffLib PUBLIC ${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Common++/header)
-target_include_directories(SniffLib PUBLIC ${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Packet++/header)
-target_include_directories(SniffLib PUBLIC ${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Pcap++/header)
-target_include_directories(SniffLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Parser/include)
-target_include_directories(SniffLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Statistic/include)
 
-target_link_libraries(SniffLib ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPacket++.a)
-target_link_libraries(SniffLib ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPcap++.a)
-#target_link_libraries(SniffLib ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libCommon++.a)
-#target_link_libraries(SniffLib ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libpqxx.a)
-target_link_libraries(SniffLib -lpcap Pcap++ Packet++ Common++)
+#including PcapPlusPlus headers:
+target_include_directories(SniffLib PUBLIC 
+${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Common++/header
+${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Packet++/header
+${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Pcap++/header
+)
 
-#target_link_libraries(app -lpcap Pcap++ Packet++ Common++ pcap pthread)
+#including headers of my library:
+target_include_directories(SniffLib PUBLIC 
+${CMAKE_CURRENT_SOURCE_DIR}/Parser/include
+${CMAKE_CURRENT_SOURCE_DIR}/Statistic/include
+)
 
-#-lpcap
-#-static-libstdc++
-#${PCAPPP_LIBS}
+#linking libraries of PcapPlusPlus (Packet++, Pcap++, Common++)
+target_link_libraries(SniffLib 
+${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPacket++.a
+${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPcap++.a
+${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libCommon++.a
+-lpcap 
+)
