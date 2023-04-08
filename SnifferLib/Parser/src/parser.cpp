@@ -6,14 +6,14 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
 
     if (device == NULL)
     {
-        std::cerr << "Cannot find interface with name <" << interfaceName << ">" << std::endl;
-        // throw exception!!-------------------//
+        //std::cerr << "Cannot find interface with name <" << interfaceName << ">" << std::endl;
+        throw std::runtime_error("Error >Cannot find interface with name <" + interfaceName + ">");
     }
 
     if (!device->open())
     {
-        std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
-        // throw exception!!-------------------//
+        //std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
+        throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
     }
 
     parsedPacketVec.clear();
@@ -31,7 +31,6 @@ void pars::Parser::startSniff()
         fullInfo();                // full information via parsing all protocols
     else if (workMode == "protei") // special task for Protey (counting all URL from HTTP)
         specialTaskInfo();
-
 }
 
 void pars::Parser::briefInfoPackets()

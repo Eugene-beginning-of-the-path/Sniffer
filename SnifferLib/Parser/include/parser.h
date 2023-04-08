@@ -1,6 +1,7 @@
 // #pragma once
 #include <iostream>
 #include <map>
+#include <exception>
 #include "PcapLiveDeviceList.h" //representing network interface (PcapLiveDevice for Linux)
 #include "stdlib.h"
 #include "SystemUtils.h" //several useful utilities for interaction with OS

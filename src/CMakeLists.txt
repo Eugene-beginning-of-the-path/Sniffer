@@ -8,6 +8,6 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../SnifferLib/Parser/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../SnifferLib/Statistic/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../Convert/include
-)
+)   
 
 target_link_libraries(snifferApp PRIVATE SniffLib)
