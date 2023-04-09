@@ -2,11 +2,14 @@
 #include <iostream>
 #include <map>
 #include <exception>
+
+#include "packetStats.h" //mine class for statistics of protocols
+
 #include "PcapLiveDeviceList.h" //representing network interface (PcapLiveDevice for Linux)
 #include "stdlib.h"
 #include "SystemUtils.h" //several useful utilities for interaction with OS
-#include "packetStats.h" //mine class for statistics of protocols
 
+// for Parsing Protocols:
 #include <EthLayer.h>
 #include <IPv4Layer.h>
 #include <IPv6Layer.h>
@@ -14,6 +17,11 @@
 #include <UdpLayer.h>
 #include <DnsLayer.h>
 #include <HttpLayer.h>
+
+// for logger:
+#include "spdlog/spdlog.h"
+#include "spdlog/async.h" //support for async logging.
+#include "spdlog/sinks/basic_file_sink.h"
 
 namespace pars
 {
@@ -26,17 +34,19 @@ namespace pars
     {
     private:
         pcpp::PcapLiveDevice *device; // network interface
-        pcpp::RawPacketVector rawVec; // RawPackets' vector
-        pars::timeout timeCapture;    // time to capture RawPackets
 
+        pars::timeout timeCapture;    // time to capture RawPackets
+        std::string workMode;         // working mode of Parser (brief, full or protei mode)
+
+        pcpp::RawPacketVector rawVec;       // RawPackets' vector
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
         pars::vvStr packetsInfo;            // lines with full extracted data from each protocols
 
-        std::map<std::string, int> countUrl;
-        std::string workMode;
+        std::map<std::string, int> countUrl; // to count URL from HTTP (for 'protei' working mode)
+        std::shared_ptr<spdlog::logger> logger; // asynchronous logger 
 
-        void briefInfoPackets();
+        //main parsing functions of the bottom:
         std::string getInfoProtocol(pcpp::Layer *curLayer);
 
         std::string reassemblyEth(pcpp::EthLayer *ethLayer);
@@ -53,16 +63,17 @@ namespace pars
         std::string reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer);
         std::string printHttpVersion(pcpp::HttpVersion version);
 
+        // Work mode (brief, full or protei mode):
         void briefInfo();
         void fullInfo();
-        void specialTaskInfo();
+        void specialTaskInfo(); //it is protei mode to count the URL from HTTP
 
     public:
         Parser(std::string interfaceName, timeout timeCapture, std::string workMode);
 
         void startSniff();
-    };
 
-    // std::string
+        ~Parser();
+    };
 
 }

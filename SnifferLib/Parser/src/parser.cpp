@@ -2,50 +2,75 @@
 
 pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), timeCapture(timeCapture), workMode(workMode)
 {
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+
+    logger->info("Logger has been inizialized successfully");
+    logger->info("Starting Parser object construction (Parser::Parser)");
+    logger->info("Capture interface: " + interfaceName + " | Capture time: " +
+                 std::to_string(timeCapture) + " | Working mode: " + workMode);
+
     device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceName);
 
     if (device == NULL)
     {
-        //std::cerr << "Cannot find interface with name <" << interfaceName << ">" << std::endl;
+        logger->error("Error(Parser::Parser) >>Cannot find interface with name <" +
+                      interfaceName + ">");
         throw std::runtime_error("Error >Cannot find interface with name <" + interfaceName + ">");
     }
+    else
+        logger->info("Interface '" + interfaceName + "' found");
 
     if (!device->open())
     {
-        //std::cerr << "Cannot open device <" << interfaceName << ">" << std::endl;
+        logger->error("Error(Parser::Parser) >>Cannot open device <" + interfaceName + ">");
         throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
     }
+    else
+        logger->info("Interface '" + interfaceName + "' has been opened successfully");
 
     parsedPacketVec.clear();
+
+    logger->info("The object of Parser class has been initialized successfully");
 }
 
 void pars::Parser::startSniff()
 {
+    logger->info("Starting Parser::startSniff()");
+
+    logger->info("Starting the capture of raw Packets");
+
     device->startCapture(rawVec);
     pcpp::multiPlatformSleep(timeCapture);
     device->stopCapture();
 
-    if (workMode == "brief")
-        briefInfo(); // brief information via PacketsStats
-    else if (workMode == "full")
-        fullInfo();                // full information via parsing all protocols
-    else if (workMode == "protei") // special task for Protey (counting all URL from HTTP)
-        specialTaskInfo();
-}
+    logger->info("Stopped the capture of raw Packets - " + std::to_string(rawVec.size()) +
+                 " raw packet were captured");
 
-void pars::Parser::briefInfoPackets()
-{
-    for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
+    if (workMode == "brief") // brief information via PacketsStats
     {
-        parsedPacketVec.push_back(pcpp::Packet(*iter));
-
-        stats.consumePacket(parsedPacketVec.back());
+        logger->info("The working mode is 'brief' so turn on to executable Parser::briefInfo()");
+        briefInfo();
     }
-    stats.printToConsole();
+
+    else if (workMode == "full") // full information via parsing all protocols
+    {
+        logger->info("The working mode is 'full' so turn on to executable Parser::fullInfo()");
+        fullInfo();
+    }
+
+    else if (workMode == "protei") // special task for Protey (counting all URL from HTTP)
+    {
+        logger->info("The working mode is 'protei' so turn on to executable Parser::specialTaskInfo()");
+        specialTaskInfo();
+    }
+
+    logger->info("Exiting the Parser::startSniff()");
 }
 
 std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
 {
+    logger->info("\t\t---Parser::getInfoProtocol()");
+
     switch (curLayer->getProtocol())
     {
     case (pcpp::Ethernet):
@@ -87,6 +112,8 @@ std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
 
 std::string pars::Parser::reassemblyEth(pcpp::EthLayer *ethLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyEth()");
+
     if (ethLayer != NULL)
     {
         std::string info = "\n\tEthernet:\n";
@@ -104,6 +131,8 @@ std::string pars::Parser::reassemblyEth(pcpp::EthLayer *ethLayer)
 
 std::string pars::Parser::reassemblyIPv4(pcpp::IPv4Layer *ipLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyIPv4()");
+
     std::string info = "\n\tIPv4:\n";
 
     info.append("\t\t>Destination IP: " + ipLayer->getDstIPAddress().toString() + '\n');
@@ -185,6 +214,8 @@ std::string pars::Parser::IPv4OptionTypeToString(pcpp::IPv4OptionTypes type)
 
 std::string pars::Parser::reassemblyIPv6(pcpp::IPv6Layer *ipLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyIPv6()");
+
     std::string info = "\n\tIPv6:\n";
 
     info.append("\t\t>Destination IP: " + ipLayer->getDstIPAddress().toString() + '\n');
@@ -205,6 +236,8 @@ std::string pars::Parser::reassemblyIPv6(pcpp::IPv6Layer *ipLayer)
 
 std::string pars::Parser::reassemblyTcp(pcpp::TcpLayer *tcpLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyTcp()");
+
     std::string info = "\n\tTCP:\n";
 
     info.append("\t\t>Source port: " + std::to_string(tcpLayer->getSrcPort()) + '\n');
@@ -310,6 +343,8 @@ std::string pars::Parser::TcpOptionTypeToString(pcpp::TcpOptionType type)
 
 std::string pars::Parser::reassemblyUdp(pcpp::UdpLayer *udpLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyUdp()");
+
     std::string info = "\n\tUDP:\n";
 
     info.append("\t\t>Source port: " + std::to_string(udpLayer->getSrcPort()) + '\n');
@@ -328,6 +363,8 @@ std::string pars::Parser::reassemblyUdp(pcpp::UdpLayer *udpLayer)
 
 std::string pars::Parser::reassemblyDns(pcpp::DnsLayer *dnsLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyDns()");
+
     std::string info = "\n\tDNS:\n";
 
     info.append("\t\t>Size of the DNS data : " + std::to_string(dnsLayer->getHeaderLen()) + '\n');
@@ -412,6 +449,8 @@ std::string pars::Parser::DnsTypeToString(pcpp::DnsResourceType type)
 
 std::string pars::Parser::reassemblyHttpRequest(pcpp::HttpRequestLayer *httpReqLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyHttpRequest()");
+
     std::string info = "\n\tHTTP(request):\n";
 
     if (httpReqLayer->getFirstLine() != nullptr)
@@ -459,6 +498,8 @@ std::string pars::Parser::printHttpMethod(pcpp::HttpRequestLayer::HttpMethod htt
 
 std::string pars::Parser::reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer)
 {
+    logger->info("\t\t\t---Parser::reassemblyHttpResponse()");
+
     std::string info = "\n\tHTTP(response):\n";
 
     if (httpResLayer->getFirstLine() != NULL)
@@ -491,7 +532,11 @@ std::string pars::Parser::printHttpVersion(pcpp::HttpVersion version)
 
 void pars::Parser::specialTaskInfo()
 {
+    logger->info("Starting Parser::specialTaskInfo()");
+    logger->info("Proceed to Parser::fullInfo()");
     fullInfo();
+
+    logger->info("Output to the console URL counting");
 
     std::cout << std::endl
               << "-----------------------------------------------------\n\n";
@@ -504,41 +549,59 @@ void pars::Parser::specialTaskInfo()
     }
 
     std::cout << std::endl;
+
+    logger->info("Exiting the Parser::specialTaskInfo()");
 }
 
 void pars::Parser::fullInfo()
 {
-    int number = 1;
+    logger->info("Starting Parser::fullInfo()");
+
+    logger->info("Parsing raw Packets:");
+    int numPacket = 1, iExternal = 0, iInternal;
     for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
     {
+        logger->info("Into -External cycle 'for'. Interation is " + std::to_string(iExternal));
         parsedPacketVec.push_back(pcpp::Packet(*iter));
 
         stats.consumePacket(parsedPacketVec.back());
 
         std::string lineStart = "\n\n Packet #";
-        lineStart.append(std::to_string(number));
+        lineStart.append(std::to_string(numPacket));
         lineStart.append(":");
         packetsInfo.push_back(pars::vecStr{""});
-        packetsInfo[number - 1].push_back(lineStart);
+        packetsInfo[numPacket - 1].push_back(lineStart);
 
+        iInternal = 0;
         for (auto i = parsedPacketVec.back().getFirstLayer(); i != NULL; i = i->getNextLayer())
         {
-            packetsInfo[number - 1].push_back(getInfoProtocol(i));
+            logger->info("Into ---Internal cycle 'for'. Interation is " + std::to_string(iInternal));
+            packetsInfo[numPacket - 1].push_back(getInfoProtocol(i));
+
+            iInternal++;
         }
 
-        number++;
+        numPacket++;
+        iExternal++;
     }
+    logger->info("Parsing raw Packets ended");
+
     stats.printToConsole();
 
     std::cout << std::endl;
 
+    logger->info("Outputing of the received information from packets to the console");
     for (auto vectors : packetsInfo)
         for (auto strings : vectors)
             std::cout << strings;
+
+    logger->info("Exiting the Parser::briefInfo()");
 }
 
 void pars::Parser::briefInfo()
 {
+    logger->info("Starting Parser::briefInfo()");
+
     for (auto iter = rawVec.begin(); iter != rawVec.end(); iter++)
     {
         pcpp::Packet parsedPacket(*iter);
@@ -546,4 +609,15 @@ void pars::Parser::briefInfo()
     }
 
     stats.printToConsole();
+
+    logger->info("Exiting the Parser::briefInfo()");
+}
+
+pars::Parser::~Parser()
+{
+    logger->info("Starting Parser::~Parser()");
+    logger->info("Closing network interface");
+    device->close();
+
+    logger->info("Exiting the Parser::~Parser()");
 }
