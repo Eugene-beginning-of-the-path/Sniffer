@@ -1,20 +1,5 @@
-// #include <iostream>
-// #include "stdlib.h"
-// #include "PcapLiveDeviceList.h"
-// #include "SystemUtils.h"
-
 #include "parser.h"
 #include "convertParam.h"
-
-// std::string ParametrToStr(std::string str)
-// {
-// 	return str.substr(str.find_first_not_of('-', 0));
-// }
-
-// int ParametrToInt(std::string str)
-// {
-// 	return std::stoi(str.substr(str.find_first_not_of('-', 0)));
-// }
 
 /**
  * main method of the application
@@ -29,7 +14,11 @@ int main(int argc, char *argv[])
 
 		parser.startSniff();
 	}
-	catch (std::runtime_error &ex)
+	catch (const spdlog::spdlog_ex& ex)
+    {
+        std::cerr << "Log initialization failed: " << ex.what() << std::endl;
+    }
+	catch (const std::runtime_error &ex)
 	{
 		std::cerr << ex.what() << std::endl;
 	}
