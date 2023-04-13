@@ -1,11 +1,11 @@
 #include "parser.h"
 
-pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), timeCapture(timeCapture), workMode(workMode)
+pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), reader(NULL), timeCapture(timeCapture), workMode(workMode)
 {
     logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
 
     logger->info("Logger has been inizialized successfully");
-    logger->info("Starting Parser object construction (Parser::Parser)");
+    logger->info("Starting Parser object construction (Parser::Parser(std::string, timeout, std::string))");
     logger->info("Capture interface: " + interfaceName + " | Capture time: " +
                  std::to_string(timeCapture) + " | Working mode: " + workMode);
 
@@ -24,13 +24,91 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
     {
         logger->error("Error(Parser::Parser) >>Cannot open device <" + interfaceName + ">");
         throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
-    }
+    } 
     else
         logger->info("Interface '" + interfaceName + "' has been opened successfully");
 
     parsedPacketVec.clear();
 
     logger->info("The object of Parser class has been initialized successfully");
+}
+
+pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
+{
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+    logger->info("Logger has been inizialized successfully");
+    logger->info("Starting Parser object construction (Parser::Parser(std::string))");
+
+    reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+    logger->info("fileName for read: " + fileName);
+
+    if (reader == NULL)
+    {
+        std::cerr << "Cannot determine reader for file type" << std::endl;
+        throw std::runtime_error("Error >Cannot determine reader for file type <" + fileName + ">");
+    }
+    else
+        logger->info("reader found the file <" + fileName + "> ");
+
+    if (!reader->open())
+    {
+        std::cerr << "Cannot open input.pcap for reading" << std::endl;
+        throw std::runtime_error("Error >Cannot open input.pcap for reading <" + fileName + ">");
+    }
+    else
+        logger->info("reader opened");
+
+    parsedPacketVec.clear();
+
+    logger->info("The object of Parser class has been initialized successfully");
+}
+
+void pars::Parser::run()
+{
+    if (device == NULL)
+        startRead();
+    else
+        startSniff();
+}
+
+void pars::Parser::startRead()
+{
+    logger->info("Starting Parser::startRead()");
+
+    logger->info("Start reading file");
+
+    pcpp::RawPacket rawPacket;
+    size_t numPacket = 1, iExternal = 0, iInternal;
+    while (reader->getNextPacket(rawPacket))
+    {
+        logger->info("Into -External cycle 'for'. Interation is " + std::to_string(iExternal));
+
+        std::string lineStart = "\n\n Packet #";
+        lineStart.append(std::to_string(numPacket));
+        lineStart.append(":");
+        packetsInfo.push_back(pars::vecStr{""});
+        packetsInfo[numPacket - 1].push_back(lineStart);
+
+        parsedPacketVec.push_back(pcpp::Packet(&rawPacket));
+
+        iInternal = 0;
+        for (auto iter = parsedPacketVec.back().getFirstLayer(); iter != NULL;
+             iter = iter->getNextLayer())
+        {
+            logger->info("Into ---Internal cycle 'for'. Interation is " + std::to_string(iInternal));
+
+            packetsInfo[numPacket - 1].push_back(getInfoProtocol(iter));
+        }
+
+        numPacket++;
+    }
+
+    std::cout << std::endl;
+
+    // logger->info("Outputing of the received information from packets to the console");
+    for (auto vectors : packetsInfo)
+        for (auto strings : vectors)
+            std::cout << strings;
 }
 
 void pars::Parser::startSniff()
@@ -617,7 +695,21 @@ pars::Parser::~Parser()
 {
     logger->info("Starting Parser::~Parser()");
     logger->info("Closing network interface");
-    device->close();
+
+    if (device != NULL)
+    {
+        device->close();
+
+        logger->info("device has been successfully closed");
+    }
+
+    if (reader != NULL)
+    {
+        reader->close();
+        delete reader;
+
+        logger->info("reader has been successfully closed and deleted");
+    }
 
     logger->info("Exiting the Parser::~Parser()");
 }

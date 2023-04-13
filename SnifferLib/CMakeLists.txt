@@ -16,7 +16,6 @@ set_target_properties(
     CXX_STANDARD_REQUIRED ON
 )
 
-
 #including PcapPlusPlus headers:
 target_include_directories(SniffLib PUBLIC 
 ${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Common++/header
@@ -42,3 +41,6 @@ ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPcap++.a
 ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libCommon++.a
 -lpcap 
 )
+
+#PcapPlusPlus::Common++
+#find_package(PcapPlusPlus required COMPONENT asio)
