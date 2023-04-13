@@ -8,9 +8,10 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		pars::Parser parser(conv::ParametrToStr(argv[2]),
-			conv::ParametrToInt(argv[1]), conv::ParametrToStr(argv[3]));
+		// pars::Parser parser(conv::ParametrToStr(argv[2]),
+		// 	conv::ParametrToInt(argv[1]), conv::ParametrToStr(argv[3]));
 
+		pars::Parser parser("input.pcap");
 		parser.run();
 
 	}
