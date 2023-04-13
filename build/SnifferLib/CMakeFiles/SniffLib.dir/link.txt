@@ -1,0 +1,2 @@
+/usr/bin/ar qc libSniffLib.a CMakeFiles/SniffLib.dir/Parser/src/parser.cpp.o CMakeFiles/SniffLib.dir/Statistic/src/packetStats.cpp.o
+/usr/bin/ranlib libSniffLib.a
