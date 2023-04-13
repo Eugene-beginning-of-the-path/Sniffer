@@ -7,7 +7,8 @@
 
 #include "PcapLiveDeviceList.h" //representing network interface (PcapLiveDevice for Linux)
 #include "stdlib.h"
-#include "SystemUtils.h" //several useful utilities for interaction with OS
+#include "SystemUtils.h"    //several useful utilities for interaction with OS
+#include "PcapFileDevice.h" //API for reader file
 
 // for Parsing Protocols:
 #include <EthLayer.h>
@@ -34,19 +35,21 @@ namespace pars
     {
     private:
         pcpp::PcapLiveDevice *device; // network interface
+        pcpp::IFileReaderDevice *reader; //API for read file
 
-        pars::timeout timeCapture;    // time to capture RawPackets
-        std::string workMode;         // working mode of Parser (brief, full or protei mode)
+        pars::timeout timeCapture; // time to capture RawPackets
+        std::string workMode;      // working mode of Parser (brief, full or protei mode)
 
         pcpp::RawPacketVector rawVec;       // RawPackets' vector
         pars::PacketVector parsedPacketVec; // already parsed Packets' vector
         pars::stats::PacketStats stats;     // to get statistics about Packets
         pars::vvStr packetsInfo;            // lines with full extracted data from each protocols
 
-        std::map<std::string, int> countUrl; // to count URL from HTTP (for 'protei' working mode)
-        std::shared_ptr<spdlog::logger> logger; // asynchronous logger 
+        std::map<std::string, int> countUrl;    // to count URL from HTTP (for 'protei' working mode)
+        std::shared_ptr<spdlog::logger> logger; // asynchronous logger
 
-        //main parsing functions of the bottom:
+
+        // main parsing functions of the bottom:
         std::string getInfoProtocol(pcpp::Layer *curLayer);
 
         std::string reassemblyEth(pcpp::EthLayer *ethLayer);
@@ -63,15 +66,22 @@ namespace pars
         std::string reassemblyHttpResponse(pcpp::HttpResponseLayer *httpResLayer);
         std::string printHttpVersion(pcpp::HttpVersion version);
 
+        void startSniff(); // capture bits of raw packets via interface
+        void startRead();  // reade file .pcap
+
         // Work mode (brief, full or protei mode):
         void briefInfo();
         void fullInfo();
-        void specialTaskInfo(); //it is protei mode to count the URL from HTTP
+        void specialTaskInfo(); // it is protei mode to count the URL from HTTP
 
     public:
         Parser(std::string interfaceName, timeout timeCapture, std::string workMode);
+        Parser(std::string fileName);
 
-        void startSniff();
+        void run(); // main method for start work the Parser (read file or capture)
+
+        size_t sizePacketsInfo() { return packetsInfo.size(); }
+        size_t sizeParsedPacketVec() { return parsedPacketVec.size(); }
 
         ~Parser();
     };
