@@ -1,8 +1,0 @@
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/CMakeFiles/edit_cache.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/CMakeFiles/rebuild_cache.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/SnifferLib/CMakeFiles/SniffLib.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/SnifferLib/CMakeFiles/edit_cache.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/SnifferLib/CMakeFiles/rebuild_cache.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/src/CMakeFiles/snifferApp.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/src/CMakeFiles/edit_cache.dir
-/home/eug/projects/Sniffer_HTTP_HTTPS/build/src/CMakeFiles/rebuild_cache.dir
