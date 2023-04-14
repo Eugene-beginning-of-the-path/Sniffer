@@ -65,10 +65,12 @@ pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
 
 void pars::Parser::run()
 {
-    if (device == NULL)
-        startRead();
-    else
+    // if reader = NULL, then rawPackets were captured through interface
+    // if device = NULL, then rawPackets were read from the file
+    if (device != NULL) 
         startSniff();
+    else if (reader != NULL)
+        startRead();
 }
 
 void pars::Parser::startRead()
@@ -146,8 +148,9 @@ void pars::Parser::showResult()
 
     if (workMode == "full" || workMode == "protei")
     {
-        std::cout << std::endl;
         logger->info("Outputing of the received informations to the console");
+
+        std::cout << std::endl;
         for (auto vectors : packetsInfo)
             for (auto strings : vectors)
                 std::cout << strings;
@@ -160,8 +163,8 @@ void pars::Parser::showResult()
                   << "-----------------------------------------------------\n\n";
         std::cout << "Protei task:\n";
 
-        for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
-             iterMap++)
+        for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); 
+            iterMap != countUrl.end(); iterMap++)
         {
             std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
         }
