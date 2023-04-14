@@ -24,7 +24,7 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
     {
         logger->error("Error(Parser::Parser) >>Cannot open device <" + interfaceName + ">");
         throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
-    } 
+    }
     else
         logger->info("Interface '" + interfaceName + "' has been opened successfully");
 
@@ -102,13 +102,6 @@ void pars::Parser::startRead()
 
         numPacket++;
     }
-
-    std::cout << std::endl;
-
-    // logger->info("Outputing of the received information from packets to the console");
-    for (auto vectors : packetsInfo)
-        for (auto strings : vectors)
-            std::cout << strings;
 }
 
 void pars::Parser::startSniff()
@@ -143,6 +136,36 @@ void pars::Parser::startSniff()
     }
 
     logger->info("Exiting the Parser::startSniff()");
+}
+
+void pars::Parser::showResult()
+{
+    logger->info("Starting Parser::showResult()");
+
+    stats.printToConsole();
+
+    if (workMode == "full" || workMode == "protei")
+    {
+        std::cout << std::endl;
+        logger->info("Outputing of the received informations to the console");
+        for (auto vectors : packetsInfo)
+            for (auto strings : vectors)
+                std::cout << strings;
+    }
+    if (workMode == "protei")
+    {
+        logger->info("Output to the console URL counting");
+
+        std::cout << std::endl
+                  << "-----------------------------------------------------\n\n";
+        std::cout << "Protei task:\n";
+
+        for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
+             iterMap++)
+        {
+            std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
+        }
+    }
 }
 
 std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
@@ -614,20 +637,6 @@ void pars::Parser::specialTaskInfo()
     logger->info("Proceed to Parser::fullInfo()");
     fullInfo();
 
-    logger->info("Output to the console URL counting");
-
-    std::cout << std::endl
-              << "-----------------------------------------------------\n\n";
-    std::cout << "Protei task:\n";
-
-    for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
-         iterMap++)
-    {
-        std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
-    }
-
-    std::cout << std::endl;
-
     logger->info("Exiting the Parser::specialTaskInfo()");
 }
 
@@ -664,15 +673,6 @@ void pars::Parser::fullInfo()
     }
     logger->info("Parsing raw Packets ended");
 
-    stats.printToConsole();
-
-    std::cout << std::endl;
-
-    logger->info("Outputing of the received information from packets to the console");
-    for (auto vectors : packetsInfo)
-        for (auto strings : vectors)
-            std::cout << strings;
-
     logger->info("Exiting the Parser::briefInfo()");
 }
 
@@ -685,8 +685,6 @@ void pars::Parser::briefInfo()
         pcpp::Packet parsedPacket(*iter);
         stats.consumePacket(parsedPacket);
     }
-
-    stats.printToConsole();
 
     logger->info("Exiting the Parser::briefInfo()");
 }
