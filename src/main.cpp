@@ -1,28 +1,48 @@
 #include "parser.h"
-#include "convertParam.h"
+#include "funcForParam.h"
+#include "string.h"
 
 /**
  * main method of the application
  */
 int main(int argc, char *argv[])
 {
-	try
+	
+	if (argc == 1)
 	{
-		pars::Parser parser(conv::ParametrToStr(argv[2]),
-							conv::ParametrToInt(argv[1]), conv::ParametrToStr(argv[3]));
-
-		//pars::Parser parser("input.pcap");
-		parser.run();
-		parser.showResult();
+		prmtrs::displayHelp();
 	}
-	catch (const spdlog::spdlog_ex &ex)
+	else if ((!strcmp("--help", argv[1])) || (argc == 1))
 	{
-		std::cerr << "Log initialization failed: " << ex.what() << std::endl;
+		prmtrs::displayHelp();
 	}
-	catch (const std::runtime_error &ex)
+	else
 	{
-		std::cerr << ex.what() << std::endl;
+		try
+		{
+			if (argc == 2)
+			{
+				pars::Parser parser(conv::ParametrToStr(conv::ParametrToStr(argv[1])));
+				parser.run();
+				parser.showResult();
+			}
+			else
+			{
+				pars::Parser parser(conv::ParametrToStr(argv[2]),
+									conv::ParametrToInt(argv[1]), conv::ParametrToStr(argv[3]));
+				parser.run();
+				parser.showResult();
+			}
+		}
+		catch (const spdlog::spdlog_ex &ex)
+		{
+			std::cerr << "Log initialization failed: " << ex.what() << std::endl;
+		}
+		catch (const std::runtime_error &ex)
+		{
+			std::cerr << ex.what() << std::endl;
+		}
 	}
-
+	
 	return 0;
 }

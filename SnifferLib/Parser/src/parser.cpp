@@ -92,6 +92,7 @@ void pars::Parser::startRead()
         packetsInfo[numPacket - 1].push_back(lineStart);
 
         parsedPacketVec.push_back(pcpp::Packet(&rawPacket));
+        stats.consumePacket(parsedPacketVec.back());
 
         iInternal = 0;
         for (auto iter = parsedPacketVec.back().getFirstLayer(); iter != NULL;
@@ -143,12 +144,12 @@ void pars::Parser::startSniff()
 void pars::Parser::showResult()
 {
     logger->info("Starting Parser::showResult()");
+    logger->info("Outputing of the received informations to the console");
 
     stats.printToConsole();
 
     if (workMode == "full" || workMode == "protei" || reader != NULL)
     {
-        logger->info("Outputing of the received informations to the console");
 
         std::cout << std::endl;
         for (auto vectors : packetsInfo)
