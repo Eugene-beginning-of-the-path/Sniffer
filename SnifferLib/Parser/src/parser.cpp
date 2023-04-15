@@ -2,7 +2,7 @@
 
 pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), reader(NULL), timeCapture(timeCapture), workMode(workMode)
 {
-    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger[" + interfaceName + ']', "logs/SnifferLogs.txt");
 
     logger->info("Logger has been inizialized successfully");
     logger->info("Starting Parser object construction (Parser::Parser(std::string, timeout, std::string))");
@@ -35,11 +35,11 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
 
 pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
 {
-    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger[" + fileName + ']', "logs/SnifferLogs.txt");
     logger->info("Logger has been inizialized successfully");
     logger->info("Starting Parser object construction (Parser::Parser(std::string))");
 
-    reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+    reader = pcpp::IFileReaderDevice::getReader(fileName);
     logger->info("fileName for read: " + fileName);
 
     if (reader == NULL)
@@ -146,7 +146,7 @@ void pars::Parser::showResult()
 
     stats.printToConsole();
 
-    if (workMode == "full" || workMode == "protei")
+    if (workMode == "full" || workMode == "protei" || reader != NULL)
     {
         logger->info("Outputing of the received informations to the console");
 

@@ -1,68 +1,85 @@
 #include "gtest/gtest.h"
 #include "parser.h"
 
-// size_t BeforeRun_sizePacketsInfo = 1;
-// size_t BeforeRun_sizeParsedPacketVec = 2;
-
 class ParserFixture : public testing::Test
 {
 public:
-    // pars::Parser* ptrParser;
-    pars::Parser parser;
+    pars::Parser *ptrParser;
 
-    // ParserFixture() : ptrParser(new pars::Parser("input.pcap")) { }
-    ParserFixture() : parser("input.pcap") {}
     static void SetUpTestSuite()
     {
-        // ptrParser = new pars::Parser("input.pcap");
+        std::cout << ">>SetUpTestSuite" << std::endl;
     }
 
     static void TearDownTestSuite()
     {
+        std::cout << ">>TearDownTestSuite" << std::endl;
     }
 
     void SetUp()
     {
-        // ptrParser = new pars::Parser("input.pcap");
-        // parser = pars::Parser("input.pcap");
-        //  BeforeRun_sizePacketsInfo = parser.sizePacketsInfo();
-        //  BeforeRun_sizeParsedPacketVec = parser.sizeParsedPacketVec();
-        // parser.run();
+        std::cout << ">>SetUp" << std::endl;
+
+        ptrParser = new pars::Parser("input.pcap");
     }
 
     void TearDown()
     {
-        // parser.~parser();
+        std::cout << ">>TearDown" << std::endl;
+
+        delete ptrParser;
     }
 };
 
-// Demonstrate some basic assertions.
-// TEST(HelloTest, BasicAssertions)
-// {
-//   // Expect two strings not to be equal.
-//   EXPECT_STRNE("hello", "world");
-//   // Expect equality.
-//   EXPECT_EQ(7 * 6, 42);
-// }
+TEST(SomeSuite, checkThrow)
+{
+    // Arrage is empty for this case test
+
+    // Assert
+    //std::cout << "EXPECT_THROW #1:" << std::endl;
+    EXPECT_THROW(pars::Parser ob("in"), std::runtime_error);
+    std::cout << "EXPECT_THROW #1 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_THROW #2:" << std::endl;
+    EXPECT_THROW(pars::Parser ob("in"), spdlog::spdlog_ex);
+    std::cout << "EXPECT_THROW #2 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_THROW #3:" << std::endl;
+    EXPECT_THROW(pars::Parser ob("eth1001", 15, "full"), std::runtime_error);
+    std::cout << "EXPECT_THROW #3 - DONE" << std::endl;
+}
 
 TEST_F(ParserFixture, sizeOf)
 {
-    // ParserTest::SetUpTestSuite();
-    //  // Arrage
-    //  pars::Parser parser("input.pcap");
-    //  size_t BeforeSizeRawVec = parser.sizePacketsInfo();
-    //  size_t BeforeSizeParsedPacketVec = parser.sizeParsedPacketVec();
-    //  parser.run();
+    // Arrage is empty for this test case
 
-    // // Act
-    // size_t sizeRawVec = parser.sizePacketsInfo();
-    // size_t sizeParsedPacketVec = parser.sizeParsedPacketVec();
+    // Act:
+    size_t beforeParsingPacketsInfo = ptrParser->sizePacketsInfo();
+    size_t beforeParsingParsedPacketVec = ptrParser->sizeParsedPacketVec();
+    ptrParser->run();
+    size_t afterParsingPacketsInfo = ptrParser->sizePacketsInfo();
+    size_t afterParsingParsedPacketVec = ptrParser->sizeParsedPacketVec();
 
-    // // Assert
-    // EXPECT_EQ(ptrParser->sizePacketsInfo(), 0);
-    EXPECT_EQ(parser.sizePacketsInfo(), 0);
+    // Assert:
+    //std::cout << "EXPECT_EQ #1:" << std::endl;
+    EXPECT_EQ(beforeParsingPacketsInfo, 0);
+    std::cout << "EXPECT_EQ #1 - DONE" << std::endl;
 
-    // EXPECT_EQ(sizeRawVec, sizeParsedPacketVec);
+    //std::cout << "EXPECT_EQ #2:" << std::endl;
+    EXPECT_EQ(beforeParsingParsedPacketVec, 0);
+    std::cout << "EXPECT_EQ #2 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_EQ #3:" << std::endl;
+    EXPECT_EQ(afterParsingPacketsInfo, afterParsingParsedPacketVec);
+    std::cout << "EXPECT_EQ #3 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_GE #1:" << std::endl;
+    EXPECT_GE(afterParsingPacketsInfo, 1);
+    std::cout << "EXPECT_GE #1 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_GE #2:" << std::endl;
+    EXPECT_GE(afterParsingParsedPacketVec, 1);
+    std::cout << "EXPECT_GE #2 - DONE" << std::endl;
 }
 
 int main(int argc, char **argv)
