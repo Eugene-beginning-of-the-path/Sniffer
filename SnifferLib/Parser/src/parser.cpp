@@ -2,7 +2,7 @@
 
 pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string workMode) : device(NULL), reader(NULL), timeCapture(timeCapture), workMode(workMode)
 {
-    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger[" + interfaceName + ']', "logs/SnifferLogs.txt");
 
     logger->info("Logger has been inizialized successfully");
     logger->info("Starting Parser object construction (Parser::Parser(std::string, timeout, std::string))");
@@ -35,11 +35,14 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
 
 pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
 {
-    logger = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/SnifferLogs.txt");
+    logger = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger[" + fileName + ']', "logs/SnifferLogs.txt");
     logger->info("Logger has been inizialized successfully");
     logger->info("Starting Parser object construction (Parser::Parser(std::string))");
 
+    reader = pcpp::IFileReaderDevice::getReader(fileName);
+
     reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+    
     logger->info("fileName for read: " + fileName);
 
     if (reader == NULL)
@@ -65,10 +68,13 @@ pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
 
 void pars::Parser::run()
 {
-    if (device == NULL)
-        startRead();
-    else
+
+    // if reader = NULL, then rawPackets were captured through interface
+    // if device = NULL, then rawPackets were read from the file
+    if (device != NULL) 
         startSniff();
+    else if (reader != NULL)
+        startRead();
 }
 
 void pars::Parser::startRead()
@@ -90,6 +96,8 @@ void pars::Parser::startRead()
         packetsInfo[numPacket - 1].push_back(lineStart);
 
         parsedPacketVec.push_back(pcpp::Packet(&rawPacket));
+        
+        stats.consumePacket(parsedPacketVec.back());
 
         iInternal = 0;
         for (auto iter = parsedPacketVec.back().getFirstLayer(); iter != NULL;
@@ -102,13 +110,6 @@ void pars::Parser::startRead()
 
         numPacket++;
     }
-
-    std::cout << std::endl;
-
-    // logger->info("Outputing of the received information from packets to the console");
-    for (auto vectors : packetsInfo)
-        for (auto strings : vectors)
-            std::cout << strings;
 }
 
 void pars::Parser::startSniff()
@@ -143,6 +144,37 @@ void pars::Parser::startSniff()
     }
 
     logger->info("Exiting the Parser::startSniff()");
+}
+
+void pars::Parser::showResult()
+{
+    logger->info("Starting Parser::showResult()");
+    logger->info("Outputing of the received informations to the console");
+
+    stats.printToConsole();
+
+    if (workMode == "full" || workMode == "protei" || reader != NULL)
+    {
+
+        std::cout << std::endl;
+        for (auto vectors : packetsInfo)
+            for (auto strings : vectors)
+                std::cout << strings;
+    }
+    if (workMode == "protei")
+    {
+        logger->info("Output to the console URL counting");
+
+        std::cout << std::endl
+                  << "-----------------------------------------------------\n\n";
+        std::cout << "Protei task:\n";
+
+        for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); 
+            iterMap != countUrl.end(); iterMap++)
+        {
+            std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
+        }
+    }
 }
 
 std::string pars::Parser::getInfoProtocol(pcpp::Layer *curLayer)
@@ -614,20 +646,6 @@ void pars::Parser::specialTaskInfo()
     logger->info("Proceed to Parser::fullInfo()");
     fullInfo();
 
-    logger->info("Output to the console URL counting");
-
-    std::cout << std::endl
-              << "-----------------------------------------------------\n\n";
-    std::cout << "Protei task:\n";
-
-    for (std::map<std::string, int>::iterator iterMap = countUrl.begin(); iterMap != countUrl.end();
-         iterMap++)
-    {
-        std::cout << "\t URL:'" << iterMap->first << "' = " << iterMap->second << std::endl;
-    }
-
-    std::cout << std::endl;
-
     logger->info("Exiting the Parser::specialTaskInfo()");
 }
 
@@ -664,15 +682,6 @@ void pars::Parser::fullInfo()
     }
     logger->info("Parsing raw Packets ended");
 
-    stats.printToConsole();
-
-    std::cout << std::endl;
-
-    logger->info("Outputing of the received information from packets to the console");
-    for (auto vectors : packetsInfo)
-        for (auto strings : vectors)
-            std::cout << strings;
-
     logger->info("Exiting the Parser::briefInfo()");
 }
 
@@ -685,8 +694,6 @@ void pars::Parser::briefInfo()
         pcpp::Packet parsedPacket(*iter);
         stats.consumePacket(parsedPacket);
     }
-
-    stats.printToConsole();
 
     logger->info("Exiting the Parser::briefInfo()");
 }

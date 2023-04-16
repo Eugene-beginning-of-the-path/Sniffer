@@ -42,5 +42,7 @@ ${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libCommon++.a
 -lpcap 
 )
 
+add_subdirectory(Tests)
+
 #PcapPlusPlus::Common++
 #find_package(PcapPlusPlus required COMPONENT asio)

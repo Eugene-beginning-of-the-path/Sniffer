@@ -80,6 +80,8 @@ namespace pars
 
         void run(); // main method for start work the Parser (read file or capture)
 
+        void showResult();
+
         size_t sizePacketsInfo() { return packetsInfo.size(); }
         size_t sizeParsedPacketVec() { return parsedPacketVec.size(); }
 
