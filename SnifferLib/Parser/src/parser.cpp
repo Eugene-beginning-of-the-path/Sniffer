@@ -24,7 +24,7 @@ pars::Parser::Parser(std::string interfaceName, timeout timeCapture, std::string
     {
         logger->error("Error(Parser::Parser) >>Cannot open device <" + interfaceName + ">");
         throw std::runtime_error("Error >Cannot open device <" + interfaceName + ">");
-    }
+    } 
     else
         logger->info("Interface '" + interfaceName + "' has been opened successfully");
 
@@ -40,6 +40,9 @@ pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
     logger->info("Starting Parser object construction (Parser::Parser(std::string))");
 
     reader = pcpp::IFileReaderDevice::getReader(fileName);
+
+    reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+    
     logger->info("fileName for read: " + fileName);
 
     if (reader == NULL)
@@ -65,6 +68,7 @@ pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
 
 void pars::Parser::run()
 {
+
     // if reader = NULL, then rawPackets were captured through interface
     // if device = NULL, then rawPackets were read from the file
     if (device != NULL) 
@@ -92,6 +96,7 @@ void pars::Parser::startRead()
         packetsInfo[numPacket - 1].push_back(lineStart);
 
         parsedPacketVec.push_back(pcpp::Packet(&rawPacket));
+        
         stats.consumePacket(parsedPacketVec.back());
 
         iInternal = 0;

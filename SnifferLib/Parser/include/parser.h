@@ -48,6 +48,7 @@ namespace pars
         std::map<std::string, int> countUrl;    // to count URL from HTTP (for 'protei' working mode)
         std::shared_ptr<spdlog::logger> logger; // asynchronous logger
 
+
         // main parsing functions of the bottom:
         std::string getInfoProtocol(pcpp::Layer *curLayer);
 
@@ -78,6 +79,7 @@ namespace pars
         Parser(std::string fileName);
 
         void run(); // main method for start work the Parser (read file or capture)
+
         void showResult();
 
         size_t sizePacketsInfo() { return packetsInfo.size(); }
