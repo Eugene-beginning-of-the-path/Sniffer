@@ -16,13 +16,6 @@ set_target_properties(
     CXX_STANDARD_REQUIRED ON
 )
 
-#including PcapPlusPlus headers:
-target_include_directories(SniffLib PUBLIC 
-${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Common++/header
-${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Packet++/header
-${CMAKE_SOURCE_DIR}/../PcapPlusPlus/Pcap++/header
-)
-
 #including headers of my library:
 target_include_directories(SniffLib PUBLIC 
 ${CMAKE_CURRENT_SOURCE_DIR}/Parser/include
@@ -34,12 +27,17 @@ target_include_directories(SniffLib PUBLIC
 ${CMAKE_CURRENT_SOURCE_DIR}/Logger
 )
 
-#linking libraries of PcapPlusPlus (Packet++, Pcap++, Common++)
+include(FetchContent)
+FetchContent_Declare(PcapPlusPlus
+	GIT_REPOSITORY https://github.com/seladb/PcapPlusPlus.git
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/PcapPlusPlus
+	GIT_TAG master)
+FetchContent_MakeAvailable(PcapPlusPlus)
+
 target_link_libraries(SniffLib 
-${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPacket++.a
-${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libPcap++.a
-${CMAKE_SOURCE_DIR}/../../../../../usr/local/lib/libCommon++.a
--lpcap 
+    Pcap++
+	Packet++
+	Common++
 )
 
 add_subdirectory(Tests)
