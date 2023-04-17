@@ -40,8 +40,6 @@ pars::Parser::Parser(std::string fileName) : device(NULL), reader(NULL)
     logger->info("Starting Parser object construction (Parser::Parser(std::string))");
 
     reader = pcpp::IFileReaderDevice::getReader(fileName);
-
-    reader = pcpp::IFileReaderDevice::getReader("input.pcap");
     
     logger->info("fileName for read: " + fileName);
 

@@ -1,4 +1,7 @@
-add_executable(SnifferTest testMain.cpp)
+cmake_minimum_required(VERSION 3.2)
+project(SniffTestProject VERSION 0.0.1)
+
+add_executable(snifferTest testMain.cpp)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -9,26 +12,14 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-target_link_libraries(SnifferTest
+target_link_libraries(snifferTest
   GTest::gtest_main
   SniffLib
 )
-#${CMAKE_CURRENT_SOURCE_DIR}/../../build/SnifferLib/libSnifferLib.a
-
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../usr/local/lib/libPacket++.a
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../usr/local/lib/libPcap++.a
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../usr/local/lib/libCommon++.a
-# -lpcap 
 
 include(GoogleTest)
-gtest_discover_tests(SnifferTest)
+gtest_discover_tests(snifferTest)
 
-target_include_directories(SnifferTest PRIVATE 
+target_include_directories(snifferTest PRIVATE 
 ${CMAKE_CURRENT_SOURCE_DIR}/../Parser/include
 )
-
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../PcapPlusPlus/Common++/header
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../PcapPlusPlus/Packet++/header
-# ${CMAKE_CURRENT_SOURCE_DIR}/../../../PcapPlusPlus/Pcap++/header
-# ${CMAKE_CURRENT_SOURCE_DIR}/../Statistic/include
-# ${CMAKE_CURRENT_SOURCE_DIR}/../Logger
