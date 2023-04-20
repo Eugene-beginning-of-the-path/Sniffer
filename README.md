@@ -193,7 +193,9 @@ Protei task:
 
 >$ sudo ./src/snifferApp  -15 -eth0 -protei
 
+И после параллельно отправлю HTTP пакеты на некоторые сервера:
 
+>$ curl 'http://alfada.ru' && curl 'http://www.vk.com' && curl 'http://alfada.ru' && curl 'http://htmlbook.ru' && curl 'http://spb.avtotochki.ru'
 ___
 Для запуска сниффера на чтение файла:
 
