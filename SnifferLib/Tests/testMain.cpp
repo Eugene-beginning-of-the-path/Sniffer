@@ -87,3 +87,73 @@ int main(int argc, char **argv)
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+
+
+
+//====== For example. Work with not pointer member of Fixture ======
+
+/*
+class ParserFixture : public testing::Test
+{
+public:
+    pars::Parser parsFixture; //Definition the member on Stack
+    
+    ParserFixture() : parsFixture("input.pcap") { } //Initialized member
+
+    static void SetUpTestSuite()
+    {
+        std::cout << ">>SetUpTestSuite" << std::endl;
+    }
+
+    static void TearDownTestSuite()
+    {
+        std::cout << ">>TearDownTestSuite" << std::endl;
+    }
+
+    void SetUp()
+    {
+        std::cout << ">>SetUp" << std::endl;
+
+        //there is void
+    }
+
+    void TearDown()
+    {
+        std::cout << ">>TearDown" << std::endl;
+
+        //there is void
+    }
+};
+
+TEST_F(ParserFixture, sizeOf)
+{
+    // Arrage is empty for this test case
+
+    // Act:
+    size_t beforeParsingPacketsInfo = parsFixture.sizePacketsInfo();
+    size_t beforeParsingParsedPacketVec = parsFixture.sizeParsedPacketVec();
+    parsFixture.run();
+    size_t afterParsingPacketsInfo = parsFixture.sizePacketsInfo();
+    size_t afterParsingParsedPacketVec = parsFixture.sizeParsedPacketVec();
+
+    // Assert:
+    //std::cout << "EXPECT_EQ #1:" << std::endl;
+    EXPECT_EQ(beforeParsingPacketsInfo, 0);
+    std::cout << "EXPECT_EQ #1 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_EQ #2:" << std::endl;
+    EXPECT_EQ(beforeParsingParsedPacketVec, 0);
+    std::cout << "EXPECT_EQ #2 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_EQ #3:" << std::endl;
+    EXPECT_EQ(afterParsingPacketsInfo, afterParsingParsedPacketVec);
+    std::cout << "EXPECT_EQ #3 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_GE #1:" << std::endl;
+    EXPECT_GE(afterParsingPacketsInfo, 1);
+    std::cout << "EXPECT_GE #1 - DONE" << std::endl;
+
+    //std::cout << "EXPECT_GE #2:" << std::endl;
+    EXPECT_GE(afterParsingParsedPacketVec, 1);
+    std::cout << "EXPECT_GE #2 - DONE" << std::endl;
+} */
