@@ -22,22 +22,31 @@ ${CMAKE_CURRENT_SOURCE_DIR}/Parser/include
 ${CMAKE_CURRENT_SOURCE_DIR}/Statistic/include
 )
 
-#includeing header of spdlob library (Logger)
-target_include_directories(SniffLib PUBLIC 
-${CMAKE_CURRENT_SOURCE_DIR}/Logger
-)
+##includeing header of spdlob library (Logger)
+#target_include_directories(SniffLib PUBLIC 
+#${CMAKE_CURRENT_SOURCE_DIR}/Logger
+#)
 
 include(FetchContent)
+set (PATH_INSTLL_EXTRNL ${CMAKE_BINARY_DIR}/external)
 FetchContent_Declare(PcapPlusPlus
 	GIT_REPOSITORY https://github.com/seladb/PcapPlusPlus.git
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/PcapPlusPlus
+	SOURCE_DIR ${PATH_INSTLL_EXTRNL}/PcapPlusPlus
 	GIT_TAG master)
 FetchContent_MakeAvailable(PcapPlusPlus)
+
+FetchContent_Declare(spdlog
+	GIT_REPOSITORY https://github.com/gabime/spdlog.git
+	SOURCE_DIR ${PATH_INSTLL_EXTRNL}/spdlog
+	GIT_TAG v1.x)
+FetchContent_MakeAvailable(spdlog)
 
 target_link_libraries(SniffLib 
     Pcap++
 	Packet++
 	Common++
+
+	spdlog
 )
 
 add_subdirectory(Tests)
